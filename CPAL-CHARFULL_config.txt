@@ -1,0 +1,14 @@
+# Remember to provide the full paths to files and directories.
+#The reference genome MUST be a fasta with the ".fa" file extension.
+#The working directory should contain the list of fastq files and the gzipped fastq files.
+# Don't worry about adding modules yourself. The pipeline will check for all needed modules and add them if they are not found.
+# If you run into trouble, please contact Laura.Timm@noaa.gov
+
+What file contains the list of FASTQs that will go into the analysis?	/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/pacific-herring-all_fastqs.txt
+What file contains adapter sequences for TRIMMOMATIC?	/home/letimm/bin/NexteraPE-PE.fa
+What chromosomes/contigs are to be analyzed in this run?	/center1/GLASSLAB/letimm/Clupea_pallasii/CHAR_chromosomes.txt
+What is the name of the FASTA file containing the reference genome?	/center1/GLASSLAB/letimm/ref_genomes/GCF_900700415.2_Ch_v2.0.2_genomic.fna
+What is the path to the working directory?	/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/
+Where is your software installed?	/home/letimm/software/
+What prefix would you like associated with this run?	CPAL-CHARFULL
+Where should failed job notifications be sent?	letimm@alaska.edu
