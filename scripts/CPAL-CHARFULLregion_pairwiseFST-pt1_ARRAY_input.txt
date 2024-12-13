@@ -1,0 +1,7 @@
+1:ConstantineBay:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULLregion_ConstantineBay_bams.txt:20
+2:GOA:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULLregion_GOA_bams.txt:20
+3:KodiakInsideUganik:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULLregion_KodiakInsideUganik_bams.txt:10
+4:KodiakOutsideKiliuda:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULLregion_KodiakOutsideKiliuda_bams.txt:10
+5:PopofIsland:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULLregion_PopofIsland_bams.txt:20
+6:PortMoller:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULLregion_PortMoller_bams.txt:20
+7:eBS:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULLregion_eBS_bams.txt:20

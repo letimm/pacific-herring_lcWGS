@@ -1,0 +1,2 @@
+1:GOA:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL2pops_GOA_bams.txt:60
+2:eBS:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL2pops_eBS_bams.txt:60
