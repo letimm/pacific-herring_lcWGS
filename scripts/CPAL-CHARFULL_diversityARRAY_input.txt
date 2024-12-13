@@ -1,0 +1,4 @@
+1:_eBSAI:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL2pops_eBS_bams.txt:60:300
+2:2pops_GOA:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL2pops_GOA_bams.txt:60:300
+3:3pops_GOA:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL3pops_GOA_bams.txt:40:200
+4:3pops_PI:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL3pops_PopofIsland_bams.txt:20:100
