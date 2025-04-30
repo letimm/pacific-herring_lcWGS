@@ -2,10 +2,10 @@
 Details associated with the assembly, analyses, and visualization/plotting are below.
 
 ## Assembly
-Assembly and basic analyses follow the [WGSfqs-to-genolikelihoods](https://github.com/letimm/WGSfqs-to-genolikelihoods) pipeline. The run was initialized with [sablefish_config.txt](https://github.com/letimm/sablefish_lcWGS/blob/main/scripts/sablefish_config.txt).
+Assembly and basic analyses follow the [WGSfqs-to-genolikelihoods](https://github.com/letimm/WGSfqs-to-genolikelihoods) pipeline. The run was initialized with [CPAL-CHARFULL_config.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/CPAL-CHARFULL_config.txt).
 
-### Index the [reference genome](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/027/596/085/GCF_027596085.1_Afim_UVic_2022/GCF_027596085.1_Afim_UVic_2022_genomic.fna.gz)
-The reference genome was prepared with a pair of scripts: [GCF_027596085.1_Afim_UVic_2022_genomic_bwa-indexSLURM.sh](https://github.com/letimm/sablefish_lcWGS/blob/main/scripts/GCF_027596085.1_Afim_UVic_2022_genomic_bwa-indexSLURM.sh) and [GCF_027596085.1_Afim_UVic_2022_genomic_faiSLURM.sh](https://github.com/letimm/sablefish_lcWGS/blob/main/scripts/GCF_027596085.1_Afim_UVic_2022_genomic_faiSLURM.sh).
+### Index the [reference genome](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/900/700/415/GCF_900700415.2_Ch_v2.0.2/GCF_900700415.2_Ch_v2.0.2_genomic.fna.gz)
+The reference genome was prepared with a pair of scripts: [GCF_900700415.2_Ch_v2.0.2_genomic_bwa-indexSLURM.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/GCF_900700415.2_Ch_v2.0.2_genomic_bwa-indexSLURM.sh) and [GCF_900700415.2_Ch_v2.0.2_genomic_faiSLURM.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/GCF_900700415.2_Ch_v2.0.2_genomic_faiSLURM.sh).
 
 ### Prepare the raw fastqs
 Raw fastqs were quality-checked with FASTQC and multiQC. [Afim2-raw_fastqcARRAY.sh](https://github.com/letimm/sablefish_lcWGS/blob/main/scripts/Afim2-raw_fastqcARRAY.sh) ran with the array input [Afim2-raw_fqcARRAY_input.txt](https://github.com/letimm/sablefish_lcWGS/blob/main/scripts/Afim2-raw_fqcARRAY_input.txt).
