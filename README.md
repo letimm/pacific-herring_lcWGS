@@ -31,7 +31,7 @@ Analyses were conducted on these polymorphic, homologous data.
 
 ## Analyses
 ### PCA
-I conducted a PCA for the whole genome with [CPAL-CHARFULL_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_wgph_pcangsd.sh) Given the large percent variation explained by PC1, I ran three additional PCAs: an eBSAI-specific PCA [CPAL-CHARFULL-eBSAI_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBSAI_wgph_pcangsd.sh), a nGOA-specific PCA that includes Popof Island [CPAL-CHARFULL-nGOA_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-nGOA_wgph_pcangsd.sh), and a nGOA-specific PCA that excludes Popof Island [CPAL-CHARFULL-nGOA-noPopof_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-nGOA-noPopof_wgph_pcangsd.sh). The eBSAI-specific PCA was driven by two outliers, so one outlier was removed to calculate a new PCA [CPAL-CHARFULL-eBSAI_wgph_pcangsd_keep59.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBSAI_wgph_pcangsd_keep59.sh). Four clusters were identified in the resulting PCA and these were futher investigated in the []() section. PCAs were visualized in [pacific_herring_summary.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/pacific_herring_summary.Rmd).
+I conducted a PCA for the whole genome with [CPAL-CHARFULL_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_wgph_pcangsd.sh) Given the large percent variation explained by PC1, I ran three additional PCAs: an eBSAI-specific PCA [CPAL-CHARFULL-eBSAI_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBSAI_wgph_pcangsd.sh), a nGOA-specific PCA that includes Popof Island [CPAL-CHARFULL-nGOA_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-nGOA_wgph_pcangsd.sh), and a nGOA-specific PCA that excludes Popof Island [CPAL-CHARFULL-nGOA-noPopof_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-nGOA-noPopof_wgph_pcangsd.sh). The eBSAI-specific PCA was driven by two outliers, so one outlier was removed to calculate a new PCA [CPAL-CHARFULL-eBSAI_wgph_pcangsd_keep59.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBSAI_wgph_pcangsd_keep59.sh). Four clusters were identified in the resulting PCA and these were futher investigated in [Identifying adaptive regions in the genome](https://github.com/letimm/pacific-herring_lcWGS/blob/main/README.md#identifying-adaptive-regions-in-the-genome). PCAs were visualized in [pacific_herring_summary.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/pacific_herring_summary.Rmd).
 
 Moving forward, population-level analyses were conducted to evaluate:
 - a regional scenario; Togiak (TOG), Constantine Bay (CB), Port Moller (PM), Popof Island (PI), Kodiak - Uganik (KU), Kodiak - Kiliuda (KK), Cordova (COR)
@@ -60,12 +60,14 @@ Individual heterozygosity was calculated from the ml files as the number of hete
 
 ### Identifying adaptive regions in the genome
 #### _FST_ genome scans
-To identify genomic sites differentiating between groups, _FST_ was calculated for every SNP in each scheme described.
+To identify genomic sites differentiating between groups, _FST_ was calculated for every SNP in each scheme described. Two additional schemes were used to investigate the genomic differences underlying the clusters identified in the eBSAI PCA (eBSAInuc) and the nGOA haplogroups identified in the mitogenome (nGOAmt; see [PUT SOMETHING HERE]()).
 | scheme | groups | scan array |
 | ------ | ------ | ------ |
 | region | TOG, CB, PM, PI, KU, KK, COR | [CPAL-CHARFULLregion_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_popARRAY.sh) |
 | 2pops | nGOA (with PI), eBSAI | [CPAL-CHARFULL2pops_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_popARRAY.sh) |
 | 3pops | nGOA (without PI), PI, eBSAI | [CPAL-CHARFULL3pops_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL3pops_popARRAY.sh) |
+| eBSAInuc | eBSAI-A, eBSAI-B, eBSAI-C | [CPAL-CHARFULLeBSAInuc_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLeBSAInuc_popARRAY.sh) |
+| nGOAmt | nGOA-haplogroup1, nGOA-haplogroup2 | [CPAL-CHARFULLnGOAmt_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLnGOAmt_popARRAY.sh) |
 
 These scripts take [CPAL-CHARFULL_angsdARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_angsdARRAY_input.txt) as array input.
 
