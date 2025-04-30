@@ -1,0 +1,336 @@
+---
+title: "pacific_herring_manhattan_plots"
+author: "laura e timm"
+date: '2024-01-25'
+output: html_document
+---
+
+# setup
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## load libraries
+```{r load_libraries, warning=FALSE, message=FALSE}
+
+packages_needed <- c("tidyverse", "ggplot2", "readxl")
+
+for(i in 1:length(packages_needed)){
+  if(!(packages_needed[i] %in% installed.packages())){install.packages(packages_needed[i])}
+  library(packages_needed[i], character.only = TRUE)
+}
+
+```
+
+
+## def fx
+
+### get local score regions
+```{r define_getLSregions_FX}
+
+get_LS_regions <- function(DF, POP, POP_LIST, CHROMO_DF) {
+  LS_DF <- DF %>%
+    filter(pop1 == POP | pop2 == POP)
+  colnames(LS_DF) = c("pop1", "pop2", "LS_chr", "xmin", "xmax")
+  LS_DF <- LS_DF %>%
+    mutate(xmin_Mb = xmin / 1000000) %>%
+    mutate(pop = case_when(pop1 == POP ~ pop2,
+                           pop2 == POP ~ pop1))
+ 
+  LS_DF$pop <- factor(LS_DF$pop, levels = POP_LIST)
+  LS_DF$LS_chr <- factor(LS_DF$LS_chr, levels = CHROMO_DF$chr_num)
+  
+  LS_DF
+}
+
+```
+
+
+### format DF
+```{r define_prepFSTdf_FX}
+
+FST_df_prep <- function(CHROMS_DF, POPLIST, FOCALPOP) {
+  
+  #identify files to combine
+  #COMPARISONS <- subset(POPLIST, !(POPLIST %in% FOCALPOP))
+  WILDCARD1 <- paste0(BASEDIR, "fst/", FOCALPOP, "-*.fst.txt")
+  FILENAMES1 <- Sys.glob(WILDCARD1) 
+  WILDCARD2 <- paste0(BASEDIR, "fst/*-", FOCALPOP, ".fst.txt")
+  FILENAMES2 <- Sys.glob(WILDCARD2)
+  file_list <- c(as.list(FILENAMES1), as.list(FILENAMES2))
+  FILENAMES <- c(FILENAMES1, FILENAMES2)
+
+  #read in files
+  fst_df <- file_list %>%
+    set_names(nm = FILENAMES) %>%
+    map_dfr(
+      ~ read_delim(.x,
+                   skip = 1,
+                   col_types = cols(),
+                   col_names = c("region", "chr", "midpos", "nsites", "fst"),
+                   delim = "\t"),
+      
+      .id = "comparison"
+    )
+
+  fst_df <- fst_df %>%
+    filter(chr %in% CHROMS_DF$chr)
+  fst_df <- left_join(fst_df, CHROMS_DF, by = "chr")
+
+  fst_df <- fst_df %>%
+    mutate(tmp1 = gsub(paste0(BASEDIR, "fst/"), "", comparison)) %>%
+    mutate(tmp1 = gsub(".fst.txt", "", tmp1)) %>%
+    mutate(tmp2 = gsub(FOCALPOP, "", tmp1)) %>%
+    mutate(POP2 = gsub("-", "", tmp2))
+  fst_df$POP2 <- factor(fst_df$POP2, levels = POPLIST)
+  fst_df$chr_num <- factor(fst_df$chr_num, levels = CHROMS_DF$chr_num)
+  fst_df$fst_neg0 <- fst_df$fst
+  fst_df$fst_neg0[fst_df$fst_neg0 < 0] <- 0
+  
+  fst_df <- fst_df %>% 
+    arrange(POP2,chr,midpos)
+
+  #sliding window
+  #if this is too messy, increase window size and/or increase ratio of count filter to window size
+  window_size <- 10000
+  filter_ct <- 135
+  window_df <- fst_df %>%
+    mutate(window = (floor(midpos/window_size) * window_size) + (window_size/2)) %>%
+    group_by(POP2,chr,window) %>%
+    summarize(window_fst = mean(fst_neg0), count=n(), POP2 = first(POP2), chr_num = first(chr_num)) %>%
+    filter(count >= filter_ct)
+  
+  final_fst_df <- full_join(fst_df[c("chr","chr_num","midpos","fst_neg0","POP2")],
+                             as.data.frame(window_df),
+                             by = c("chr" = "chr", 
+                                    "midpos" = "window", 
+                                    "POP2" = "POP2", 
+                                    "chr_num" = "chr_num"))
+
+  final_fst_df
+
+}
+
+```
+
+
+##specifics
+```{r project_setup}
+
+BASEDIR <- "C:/Users/laura.timm/Desktop/Clupea_pallasii/" #the directory where the metadata file lives
+FIG_DIR <- paste0(BASEDIR, "FIGURES/")
+PREFIX <- "CPAL-CHARFULL" #the prefix for the lcWGS run
+ls_regions_df <- read_xlsx(paste0(BASEDIR, "local_score/summary.xlsx"), sheet = "tidy")
+OUTDIR <- "fst/final_manhattans/"
+
+CHROMFILE <- paste0(BASEDIR, "CHAR_chrom_metadata.txt")
+chrom_df <- read.table(CHROMFILE, header = TRUE)
+
+theme_set(
+  theme(
+    legend.position = "none",
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5),
+    axis.text.y = element_text(angle = 0, size = 10),
+    panel.background = element_rect(fill = "white"), 
+    panel.spacing = unit(0,"lines"),
+    strip.text.y = element_text(angle = 0) 
+  )
+)
+
+```
+
+
+```{r manh_subset}
+
+# pi_fst_df_slim <- pi_fst_df[c("chr","chr_num","midpos","fst_neg0","POP2")]
+# 
+# subset_df <- pi_fst_df %>%
+#    slice(which(row_number() %% 500 == 1))
+# 
+# window_size <- 1000000
+# subset_window <- subset_df %>%
+#   mutate(window = (floor(midpos/window_size)*window_size) + (window_size/2)) %>%
+#   group_by(chr,window,POP2) %>%
+#   summarize(window_fst = mean(fst_neg0), count=n(), POP2 = first(POP2), chr_num = first(chr_num)) %>%
+#   filter(count > 10)
+# 
+# sum(is.na(subset_window$window_fst) == FALSE)
+# 
+# subset_df_final <- full_join(subset_df[c("chr","chr_num","midpos","fst_neg0","POP2")],
+#                              as.data.frame(subset_window),
+#                              by = c("chr" = "chr", 
+#                                     "midpos" = "window", 
+#                                     "POP2" = "POP2", 
+#                                     "chr_num" = "chr_num"))
+# 
+# subset_df_final <- subset_df_final %>%
+#   filter(is.na(POP2) == FALSE)
+# 
+# sum(is.na(subset_df_final$window_fst) == FALSE)
+# 
+# (pi_manh_base <- ggplot(data = subset_df_final, aes(x = midpos, y = fst_neg0)) +
+#   geom_point(aes(color=as.factor(chr_num)), alpha = 0.5) +
+#   geom_path(aes(x = midpos, y = window_fst), color = "white") +
+#   geom_vline(aes(xintercept = xmin),
+#              alpha = 0.75,
+#              color = "#006d2c",
+#              data = transform(pi_LS_rect, POP2 = pop, chr_num = LS_chr)) +
+#   scale_color_manual(values = rep(c("#252525", "#636363"), 25 )) +
+#   facet_grid(POP2 ~ chr_num, scales = "free_x") +
+#   scale_y_continuous(breaks=c(0.0, 0.25, 0.5, 0.75, 1), limits=c(0, 1)) +
+#   scale_x_continuous(breaks = c(1e7,2e7)) +
+#   ylab(expression(italic(F[ST]))) +
+#   xlab("Chromosome position (Mb)") +
+#   ggtitle("Regions within nGOA: Popof Island vs all"))
+
+```
+
+
+# overall: nGOA vs eBSAI
+```{r eBSAI_nGOA}
+
+POPSLIST_2pop <- list("ebsai2pop", "ngoa2pop")
+
+two_pop_fst_df <- FST_df_prep(chrom_df, POPSLIST_2pop, "ngoa2pop")
+
+nrow(two_pop_fst_df)
+sum(is.na(two_pop_fst_df$window_fst) == FALSE)
+
+(two_pop_manh <- ggplot(data = two_pop_fst_df, aes(x = midpos, y = fst_neg0)) +
+  geom_point(aes(color=as.factor(chr_num)), alpha = 0.5) +
+  geom_path(aes(x = midpos, y = window_fst), color = "white") +
+  # geom_vline(aes(xintercept = xmin), 
+  #            alpha = 0.75, color = "#006d2c", 
+  #            data = transform(pi_LS_rect, POP2 = pop, chr_num = LS_chr)) +
+  scale_color_manual(values = rep(c("#252525", "#636363"), 25 )) +
+  facet_grid(POP2 ~ chr_num, scales = "free_x") +
+  scale_y_continuous(breaks=c(0.0, 0.25, 0.5, 0.75, 1), limits=c(0, 1)) +
+  scale_x_continuous(breaks = c(1e7,2e7)) +
+  ylab(expression(italic(F[ST]))) +
+  xlab("Chromosome position (Mb)") +
+  ggtitle("eastern Bering Sea and Aleutian Islands vs the northern Gulf of Alaska"))
+
+ggsave(paste0(FIG_DIR, "ebsai2pop-ngoa2pop_10000-135.fst.jpg"), width = 12, height = 6, units = "in", dpi = 600)
+
+```
+
+
+
+# within nGOA: PI vs all
+```{r nGOA}
+
+POPSLIST_nGOA <- list("Cordova", "KodiakInsideUganik", "KodiakOutsideKiliuda", "ngoaPopofIsland")
+
+pi_LS_rect <- get_LS_regions(ls_regions_df, "PopofIsland", POPSLIST_nGOA, chrom_df)
+
+pi_fst_df <- FST_df_prep(chrom_df, POPSLIST_nGOA, "ngoaPopofIsland")
+
+nrow(pi_fst_df)
+sum(is.na(pi_fst_df$window_fst) == FALSE)
+
+(pi_manh <- ggplot(data = pi_fst_df, aes(x = midpos, y = fst_neg0)) +
+  geom_point(aes(color=as.factor(chr_num)), alpha = 0.5) +
+  geom_path(aes(x = midpos, y = window_fst), color = "white") +
+  geom_vline(aes(xintercept = xmin), 
+             alpha = 0.75, color = "#006d2c", 
+             data = transform(pi_LS_rect, POP2 = pop, chr_num = LS_chr)) +
+  scale_color_manual(values = rep(c("#252525", "#636363"), 25 )) +
+  facet_grid(POP2 ~ chr_num, scales = "free_x") +
+  scale_y_continuous(breaks=c(0.0, 0.25, 0.5, 0.75, 1), limits=c(0, 1)) +
+  scale_x_continuous(breaks = c(1e7,2e7)) +
+  ylab(expression(italic(F[ST]))) +
+  xlab("Chromosome position (Mb)") +
+  ggtitle("Regions within nGOA: Popof Island vs all"))
+
+ggsave(paste0(FIG_DIR, "nGOA-POPOFISLAND_localscore_500-5.fst.jpg"), width = 12, height = 6, units = "in", dpi = 600)
+
+```
+
+
+
+# within eBSAI: TOG vs all
+```{r eBSAI}
+
+POPSLIST_eBSAI <- list("ConstantineBay", "Togiak", "PortMoller")
+
+tog_LS_rect <- get_LS_regions(ls_regions_df, "Togiak", POPSLIST_eBSAI, chrom_df)
+
+tog_fst_df <- FST_df_prep(chrom_df, POPSLIST_eBSAI, "ebsaiTogiak")
+
+tog_manh <- ggplot(data = tog_fst_df, aes(x = midpos, y = fst_neg0)) +
+  geom_point(aes(color=as.factor(chr_num)), alpha = 0.5) +
+  geom_path(aes(x = midpos, y = window_fst), color = "white") +
+  geom_vline(aes(xintercept = xmin), 
+             alpha = 0.75, color = "#006d2c", 
+             data = transform(tog_LS_rect, POP2 = pop, chr_num = LS_chr)) +
+  scale_color_manual(values = rep(c("#252525", "#636363"), 25 )) +
+  facet_grid(POP2 ~ chr_num, scales = "free_x") +
+  scale_y_continuous(breaks=c(0.0, 0.25, 0.5, 0.75, 1), limits=c(0, 1)) +
+  scale_x_continuous(breaks = c(1e7,2e7)) +
+  ylab(expression(italic(F[ST]))) +
+  xlab("Chromosome position (Mb)") +
+  ggtitle("Regions within eBSAI: Togiak vs all")
+
+ggsave(paste0(FIG_DIR, "eBSAI-TOGIAK_localscore_500-5.fst.jpg"), width = 12, height = 5, units = "in", dpi = 600)
+
+```
+
+
+
+# eBSAI clusters: A vs all
+```{r manh_ebs59A}
+
+POPSLIST_eBS59clusts <- list("A", "B", "C")
+
+A_LS_rect <- get_LS_regions(ls_regions_df, "A", POPSLIST_eBS59clusts, chrom_df)
+
+A_fst_df <- FST_df_prep(chrom_df, POPSLIST_eBS59clusts, "A")
+
+A_manh <- ggplot(data = A_fst_df, aes(x = midpos, y = fst_neg0)) +
+  geom_point(aes(color=as.factor(chr_num)), alpha = 0.5) +
+  geom_path(aes(x = midpos, y = window_fst), color = "white") +
+  geom_vline(aes(xintercept = xmin), 
+             alpha = 0.75, color = "#006d2c", 
+             data = transform(A_LS_rect, POP2 = pop, chr_num = LS_chr)) +
+  scale_color_manual(values = rep(c("#252525", "#636363"), 25 )) +
+  facet_grid(POP2 ~ chr_num, scales = "free_x") +
+  scale_y_continuous(breaks=c(0.0, 0.25, 0.5, 0.75, 1), limits=c(0, 1)) +
+  scale_x_continuous(breaks = c(1e7,2e7)) +
+  ylab(expression(italic(F[ST]))) +
+  xlab("Chromosome position (Mb)") +
+  ggtitle("Lineages within eBSAI: A vs all")
+
+ggsave(paste0(FIG_DIR, "eBSAIclust-A_localscore_500-5.fst.jpg"), width = 12, height = 5, units = "in", dpi = 600)
+
+```
+
+
+
+# MTclusts: GOA1 vs GOA2
+```{r manh_mt_GOA}
+
+POPSLIST_mtGOAclusts <- list("GOA1", "GOA2")
+
+goa1_LS_rect <- get_LS_regions(ls_regions_df, "GOA1", POPSLIST_mtGOAclusts, chrom_df)
+
+goa1_fst_df <- FST_df_prep(chrom_df, POPSLIST_mtGOAclusts, "GOA1")
+
+goa1_manh <- ggplot(data = goa1_fst_df, aes(x = midpos, y = fst_neg0)) +
+  geom_point(aes(color=as.factor(chr_num)), alpha = 0.5) +
+  geom_path(aes(x = midpos, y = window_fst), color = "white") +
+  geom_vline(aes(xintercept = xmin), 
+             alpha = 0.75, color = "#006d2c", 
+             data = transform(goa1_LS_rect, POP2 = pop, chr_num = LS_chr)) +
+  scale_color_manual(values = rep(c("#252525", "#636363"), 25 )) +
+  facet_grid(POP2 ~ chr_num, scales = "free_x") +
+  scale_y_continuous(breaks=c(0.0, 0.25, 0.5, 0.75, 1), limits=c(0, 1)) +
+  scale_x_continuous(breaks = c(1e7,2e7)) +
+  ylab(expression(italic(F[ST]))) +
+  xlab("Chromosome position (Mb)") +
+  ggtitle("mito-haplogroups within nGOA: GOA1 vs GOA2 in nuclear data")
+
+ggsave(paste0(FIG_DIR, "mtGOAclust-GOA1_localscore_500-5.fst.jpg"), width = 12, height = 4, units = "in", dpi = 600)
+
+```
