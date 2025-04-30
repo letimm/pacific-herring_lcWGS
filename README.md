@@ -39,7 +39,7 @@ Moving forward, population-level analyses were conducted to evaluate:
 - a three-population scenario; nGOA (KU, KK, COR) vs PI vs eBSAI (TOG, CB, PM)
 
 
-### Population-level _FST_
+### Pairwise _FST_
 After individuals were organized as described above, _FST_ values were calculated for all population pairs within these schemes using [CPAL-CHARFULL2pops_pairwiseFST-pt1_ARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_pairwiseFST-pt1_ARRAY.sh) and [CPAL-CHARFULL2pops_pairwiseFST-pt2_ARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_pairwiseFST-pt2_ARRAY.sh). 
 Within each script, an array file specifies the populations and population pairs.
 | scheme | groups | pt1 array | pt2 array |
@@ -53,8 +53,14 @@ To examine the statistical significance of the calculated _FST_ values, I ran a 
 Distributions were generated with [CPAL-CHARFULLregion_fst_posterior.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_fst_posterior.sh), [CPAL-CHARFULL2pops_fst_posterior.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_fst_posterior.sh), and [CPAL-CHARFULL3pops_fst_posterior.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL3pops_fst_posterior.sh).
 Significance was tested with [generate-fst-posterior_chinook.py](https://github.com/letimm/WGSfqs-to-genolikelihoods/blob/main/generate-fst-posterior_chinook.py).
 
-### Genome scan and local score analysis
-Genome scans were conducted for each scheme described above.
+### Population-level metrics
+[CPAL-CHARFULL_diversityARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_diversityARRAY.sh) calculated diversity with the array input [CPAL-CHARFULL_diversityARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_diversityARRAY_input.txt). Heterozygosity was calculated with [CPAL-CHARFULL_heterozygosityARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_heterozygosityARRAY.sh) arrayed across individuals with [CPAL-CHARFULL_heterozygosityARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_heterozygosityARRAY_input.txt). Scripts are provided below. Population-level diversity was calculated from the pestPG files as the sum of each chromosome's diversity value, divided by the total number of sites that diversity was calculated over.
+Individual heterozygosity was calculated from the ml files as the number of heterozygous sites divided by the total number of sites. Population-level heterozygosity was calculated as the average individual heterozygosity for the population.
+
+
+### Identifying adaptive regions in the genome
+#### _FST_ genome scans
+To identify genomic sites differentiating between groups, _FST_ was calculated for every SNP in each scheme described.
 | scheme | groups | scan array |
 | ------ | ------ | ------ |
 | region | TOG, CB, PM, PI, KU, KK, COR | [CPAL-CHARFULLregion_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_popARRAY.sh) |
@@ -63,74 +69,8 @@ Genome scans were conducted for each scheme described above.
 
 These scripts take [CPAL-CHARFULL_angsdARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_angsdARRAY_input.txt) as array input.
 
+####  Local score analysis
+To identify genomic sites under selection, local score analysis was conducted for each scheme described.
+Allele counts were made with [CPAL-CHARFULL_dumpCountsARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_dumpCountsARRAY.sh), which takes [CPAL-CHARFULL_dumpCountsARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_dumpCountsARRAY_input.txt) as array input. Fisher's Exact Test (FET) results were calculated from allele counts with [dumpCounts2FET.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/dumpCounts2FET.Rmd). Local score analyses were conducted over these FET results with [FET2localScores.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/FET2localScores.Rmd).
+
 Results were visualized in an R markdown [manhattan_plots.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/manhattan_plots.Rmd).
-
-These genome scans revealed
-1) A lack of genetic structure across the geographic range.
-2) Two large inversions dominating chromosome 22 and driving the clustering seen in teh whole genome PCA.
-3) A distinct peak on chromosome 14 that differentiates males and females.
-
-The inversions and peak were investigated in more detail.
-
-## Regions of Interest
-### _gsdf_: the master sex-determining gene in pacific-herring
-When BLASTing the sequence associated with the peak in _FST_ values on chromosome 14 when comparing males to females, the top hits are 'Anoplopoma fimbria chromosome X putative gonadal soma-derived factor (gsdf) gene, complete cds' and 'Anoplopoma fimbria chromosome X putative gonadal soma-derived factor (gsdf) gene, complete cds' ([KC623942.1](https://www.ncbi.nlm.nih.gov/nuccore/KC623942.1) and [KC623943.1](https://www.ncbi.nlm.nih.gov/nuccore/KC623943.1), respectively).
-Initially, I examined sequencing depths along the region of interest on chr14. _gsdf_ has X-specific and Y-specific segments and the reference genome includes the X-specific sequence (not the Y-specific sequence). Because of this, we expect sequencing depth to drop along the X-specific segment. To confirm this, I counted sequencing depths along _gsdf_ with [CPAL-CHARFULL_global_gsdf-depths_female_nofilter.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_global_gsdf-depths_female_nofilter.sh) and [CPAL-CHARFULL_global_gsdf-depths_male_nofilter.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_global_gsdf-depths_male_nofilter.sh). To reduce the noise of basepair-by-basepair sequencing depths, I ran a 100bp sliding window analysis in R and plotted the results for males and females with [coverage_sliding_window.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/coverage_sliding_window.Rmd).
-
-To analyze this region, I extracted it from the larger dataset with [chr14_peak.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/chr14-peak.sh), which calls [subset_pca.py](https://github.com/letimm/WGSfqs-to-genolikelihoods/blob/main/subset_pca.py) and results in a new beagle file and a script ([chr14peak_pcaSLURM.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/chr14peak_pcaSLURM.sh)) for executing a PCA of the extarcted region.
-Finally, a genotype heatmap was plotted for the region with [genotypeHeatmap_sex.R](https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/genotypeHeatmap_sex.R).
-
-### Chromosome 16 inversions
-Two large inversions were identified on chromosome 22.
-First, I pulled these regions from the full dataset. Then I conducted PCAs for each inversion and investigated linkage.
-| inversion | region (bps) | subset script | pca script | linkage script |
-| ------ | ------ | ------ | ------ | ------ |
-| inv1 | 4.13e6-8.19e6 | [chr22-inv1_4.13-8.19_0.3fst.sh] | [chr22-inv1_4.13-8.19_0.3fst_pcaSLURM.sh] | [chr22-inv1_LD.sh] |
-| inv2 | 8.97e6-11.90e6 | [chr22-inv2_8.97-11.9_0.3fst.sh] | [chr22-inv2_8.97-11.9_0.3fst_pcaSLURM.sh] | [chr22-inv2_LD.sh] |
-
-The linkage scripts require [ldplot_general.R](https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/ldplot_general.R) to plot the output.
-
-The majority of the R scripts listed here were developed by Sara Schaal.
-
-[CPAL-CHARFULL-regions_summaryFST-pt1_ARRAY_input.txt]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-4regions_summaryFST-pt1_ARRAY_input.txt>
-[CPAL-CHARFULL-regions_summaryFST-pt2_ARRAY_input.txt]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-4regions_summaryFST-pt2_ARRAY_input.txt>
-[CPAL-CHARFULL-clusters_summaryFST-pt1_ARRAY_input.txt]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-clusters_summaryFST-pt1_ARRAY_input.txt>
-[CPAL-CHARFULL-clusters_summaryFST-pt2_ARRAY_input.txt]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-clusters_summaryFST-pt2_ARRAY_input.txt>
-
-[CPAL-CHARFULL_popARRAY.sh]:
-<https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_popARRAY.sh>
-[CPAL-CHARFULL-clusters_popARRAY.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-clusters_popARRAY.sh>
-[CPAL-CHARFULL-sex_popARRAY.sh]:
-<https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-sex_popARRAY.sh>
-
-[fst_genomescan_regions-BSAI.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_regions-BSAI.R>
-[fst_genomescan_regions-wGOA.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_regions-wGOA.R>
-[fst_genomescan_regions-eGOA.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_regions-eGOA.R>
-[fst_genomescan_regions-south.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_regions-south.R>
-[CPAL-CHARFULL_genomescanFIG_regions-BSAI.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_regions-BSAI.sh>
-[CPAL-CHARFULL_genomescanFIG_regions-wGOA.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_regions-wGOA.sh>
-[CPAL-CHARFULL_genomescanFIG_regions-eGOA.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_regions-eGOA.sh>
-[CPAL-CHARFULL_genomescanFIG_regions-south.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_regions-south.sh>
-
-[fst_genomescan_clusters-A.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_clusters-A.R>
-[fst_genomescan_clusters-B.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_clusters-B.R>
-[fst_genomescan_clusters-C.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_clusters-C.R>
-[fst_genomescan_clusters-D.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_clusters-D.R>
-[fst_genomescan_clusters-E.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_clusters-E.R>
-[fst_genomescan_clusters-F.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_clusters-F.R>
-[CPAL-CHARFULL_genomescanFIG_clusters-A.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_clusters-A.sh>
-[CPAL-CHARFULL_genomescanFIG_clusters-B.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_clusters-B.sh>
-[CPAL-CHARFULL_genomescanFIG_clusters-C.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_clusters-C.sh>
-[CPAL-CHARFULL_genomescanFIG_clusters-D.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_clusters-D.sh>
-[CPAL-CHARFULL_genomescanFIG_clusters-E.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_clusters-E.sh>
-[CPAL-CHARFULL_genomescanFIG_clusters-F.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_clusters-F.sh>
-
-[fst_genomescan_female.R]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/fst_genomescan_female.R>
-[CPAL-CHARFULL_genomescanFIG_female.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/plotting/CPAL-CHARFULL_genomescanFIG_female.sh>
-
-[chr22-inv1_4.13-8.19_0.3fst.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/chr22-inv1_4.13-8.19_0.3fst.sh>
-[chr22-inv2_8.97-11.9_0.3fst.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/chr22-inv2_8.97-11.9_0.3fst.sh>
-[chr22-inv1_4.13-8.19_0.3fst_pcaSLURM.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/chr22-inv1_4.13-8.19_0.3fst_pcaSLURM.sh>
-[chr22-inv2_8.97-11.9_0.3fst_pcaSLURM.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/chr22-inv2_8.97-11.9_0.3fst_pcaSLURM.sh>
-[chr22-inv1_LD.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/chr22-inv1_LD.sh>
-[chr22-inv2_LD.sh]: <https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/chr22-inv2_LD.sh>
