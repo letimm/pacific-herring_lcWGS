@@ -17,7 +17,7 @@ After this script ran, results were collated with [CPAL-CHARFULL-trim_multiqcSLU
 ### Alignment
 Trimmed fastqs were aligned to the reference genome, reads sorted, duplicates removed, and overlaps clipped with the single script [CPAL-CHARFULL_alignARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_alignARRAY.sh) with the array input [CPAL-CHARFULL_alignARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_alignARRAY_input.txt).
 Prior to genotype likelihood calculations, mean alignment depth was calculated for each individual with [CPAL-CHARFULL_depthsARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_depthsARRAY.sh) and the array input [CPAL-CHARFULL_depthsARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_depthsARRAY_input.txt). Depth calculation requires [mean_cov_ind.py](https://github.com/letimm/WGSfqs-to-genolikelihoods/blob/main/mean_cov_ind.py).
-Mean depths were visualized in the project Rmd [pacific_herring_summary.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/pacific_herring_summary.Rmd). No individuals fell below the mean depth threshold of 1x, so all samples were included in genotype likelihood calculation.
+Mean depths were visualized in the project Rmd [pacific_herring_summary.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/pacific_herring_summary.Rmd). No individuals fell below the mean depth threshold of 1x, so all samples were included in genotype likelihood calculation.
 
 ### Calculate genotype likelihoods
 Genotype likelihoods were calculated across all polymorphic sites with [CPAL-CHARFULL_polymorphicARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_polymorphicARRAY.sh) and across all sites with [CPAL-CHARFULL_globalARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_globalARRAY.sh). Both scripts ran with the array input [CPAL-CHARFULL_angsdARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_angsdARRAY_input.txt).
@@ -31,57 +31,39 @@ Analyses were conducted on these polymorphic, homologous data.
 
 ## Analyses
 ### PCA
-I conducted a PCA for the whole genome with [CPAL-CHARFULL_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_wgph_pcangsd.sh) Given the large percent variation explained by PC1, I ran three additional PCAs: an eBSAI-specific PCA [CPAL-CHARFULL-eBSAI_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBSAI_wgph_pcangsd.sh), a nGOA-specific PCA that includes Popof Island [CPAL-CHARFULL-nGOA_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-nGOA_wgph_pcangsd.sh), and a nGOA-specific PCA that excludes Popof Island [CPAL-CHARFULL-nGOA-noPopof_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-nGOA-noPopof_wgph_pcangsd.sh). The eBSAI-specific PCA was driven by two outliers, so one outlier was removed to calculate a new PCA [CPAL-CHARFULL-eBSAI_wgph_pcangsd_keep59.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBSAI_wgph_pcangsd_keep59.sh). PCAs were visualized in [pacific_herring_summary.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/pacific_herring_summary.Rmd).
+I conducted a PCA for the whole genome with [CPAL-CHARFULL_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_wgph_pcangsd.sh) Given the large percent variation explained by PC1, I ran three additional PCAs: an eBSAI-specific PCA [CPAL-CHARFULL-eBSAI_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBSAI_wgph_pcangsd.sh), a nGOA-specific PCA that includes Popof Island [CPAL-CHARFULL-nGOA_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-nGOA_wgph_pcangsd.sh), and a nGOA-specific PCA that excludes Popof Island [CPAL-CHARFULL-nGOA-noPopof_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-nGOA-noPopof_wgph_pcangsd.sh). The eBSAI-specific PCA was driven by two outliers, so one outlier was removed to calculate a new PCA [CPAL-CHARFULL-eBSAI_wgph_pcangsd_keep59.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBSAI_wgph_pcangsd_keep59.sh). PCAs were visualized in [pacific_herring_summary.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/pacific_herring_summary.Rmd).
 
 Moving forward, population-level analyses were conducted to evaluate:
-- a two-population scenarion; GOA (including Popof Island) vs eBSAI
-- a three-population scenario; nGOA vs Popof Island vs eBSAI
-- a regional scenario; Togiak vs Constantine Bay vs Port Moller vs Popof Island vs Kodiak - Uganik vs Kodiak - Kiliuda vs Cordova
+- a regional scenario; Togiak (TOG), Constantine Bay (CB), Port Moller (PM), Popof Island (PI), Kodiak - Uganik (KU), Kodiak - Kiliuda (KK), Cordova (COR)
+- a two-population scenario; nGOA (PI, KU, KK, COR) vs eBSAI (TOG, CB, PM)
+- a three-population scenario; nGOA (KU, KK, COR) vs PI vs eBSAI (TOG, CB, PM)
+
 
 ### Population-level _FST_
-Individuals were organized in two ways that were informative for the research questions: by region (Bering Sea and Aleutian Islands - BSAI, western Gulf of Alaska - wGOA, eastern Gulf of Alaska - eGOA, and the Washington State coast - south) and by cluster (A-F representing the six clusters in the whole genome PCA, from left to right).
-_FST_ values were calculated for all population pairs within these schemes using [CPAL-CHARFULL_summaryFST-pt1_ARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_summaryFST-pt1_ARRAY.sh) and [CPAL-CHARFULL_summaryFST-pt2_ARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_summaryFST-pt2_ARRAY.sh). 
+After individuals were organized as described above, _FST_ values were calculated for all population pairs within these schemes using [CPAL-CHARFULL2pops_pairwiseFST-pt1_ARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_pairwiseFST-pt1_ARRAY.sh) and [CPAL-CHARFULL2pops_pairwiseFST-pt2_ARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_pairwiseFST-pt2_ARRAY.sh). 
 Within each script, an array file specifies the populations and population pairs.
 | scheme | groups | pt1 array | pt2 array |
 | ------ | ------ | ------ | ------ |
-| regions | BSAI, wGOA, eGOA, south | [CPAL-CHARFULL-regions_summaryFST-pt1_ARRAY_input.txt] | [CPAL-CHARFULL-regions_summaryFST-pt2_ARRAY_input.txt] |
-| clusters | A, B, C, D, E, F | [CPAL-CHARFULL-clusters_summaryFST-pt1_ARRAY_input.txt] | [CPAL-CHARFULL-clusters_summaryFST-pt2_ARRAY_input.txt] |
+| region | TOG, CB, PM, PI, KU, KK, COR | [CPAL-CHARFULLregion_pairwiseFST-pt1_ARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_pairwiseFST-pt1_ARRAY_input.txt) | [CPAL-CHARFULLregion_pairwiseFST-pt2_ARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_pairwiseFST-pt2_ARRAY_input.txt) |
+| 2pops | nGOA (with PI), eBSAI | [CPAL-CHARFULL2pops_pairwiseFST-pt1_ARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_pairwiseFST-pt1_ARRAY_input.txt) | [CPAL-CHARFULL2pops_pairwiseFST-pt2_ARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_pairwiseFST-pt2_ARRAY_input.txt) |
+| 3pops | nGOA (without PI), PI, eBSAI | [CPAL-CHARFULL3pops_pairwiseFST-pt1_ARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL3pops_pairwiseFST-pt1_ARRAY_input.txt) | [CPAL-CHARFULL3pops_pairwiseFST-pt2_ARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL3pops_pairwiseFST-pt2_ARRAY_input.txt) |
 
-To examine the statistical significance of the calculated _FST_ values, I ran a permutation test for every population pair. Briefly, given the four populations BSAI (n = 25), wGOA (n = 17), eGOA (n = 28), and south (n = 49), for each permutation all 119 individuals are randomly shuffled into these four populations, maintaining sample sizes. Pairwise population-level _FST_ values are calculated for this new arrangement of individuals. After the permutations have concluded and we have a distribution of _FST_ values for each population pair, we calculate the mean of each distribution and use it to estimate the cumulative distribution function (CDF) of the _FST_ result for the population pair under an exponential distribution. P-val is estimated as 1 - CDF.
+To examine the statistical significance of the calculated _FST_ values, I ran a permutation test for every population pair. Briefly, given the three-population scenario (eBSAI, n = 60; PI, n = 20; nGOA, n = 40) , for each permutation all 120 individuals are randomly shuffled into these three populations, maintaining sample sizes. Pairwise population-level _FST_ values are calculated for this new arrangement of individuals. After the permutations have concluded and we have a distribution of _FST_ values for each population pair, we calculate the mean of each distribution and use it to estimate the cumulative distribution function (CDF) of the _FST_ result for the population pair under an exponential distribution. P-val is estimated as 1 - CDF.
 
-Distributions were generated with [CPAL-CHARFULL-4regions_fst_posterior.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-4regions_fst_posterior.sh) and [CPAL-CHARFULL-clusters_fst_posterior.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-clusters_fst_posterior.sh).
-Significance was tested with [CPAL-CHARFULL-4regions_fst-sig-test-wrapper.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-4regions_fst-sig-test-wrapper.sh) and [CPAL-CHARFULL-clusters_fst-sig-test-wrapper.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-clusters_fst-sig-test-wrapper.sh) (these scripts call [fst_significance_test.py](https://github.com/letimm/WGSfqs-to-genolikelihoods/blob/main/fst_significance_test.py)).
+Distributions were generated with [CPAL-CHARFULLregion_fst_posterior.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_fst_posterior.sh), [CPAL-CHARFULL2pops_fst_posterior.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_fst_posterior.sh), and [CPAL-CHARFULL3pops_fst_posterior.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL3pops_fst_posterior.sh).
+Significance was tested with [generate-fst-posterior_chinook.py](https://github.com/letimm/WGSfqs-to-genolikelihoods/blob/main/generate-fst-posterior_chinook.py).
 
-### Genome scan
-In addition to the two schemes listed above, samples from Washington State were sexed, allowing for analysis of males vs females.
+### Genome scan and local score analysis
+Genome scans were conducted for each scheme described above.
 | scheme | groups | scan array |
 | ------ | ------ | ------ |
-| regions | BSAI, wGOA, eGOA, south | [CPAL-CHARFULL_popARRAY.sh] |
-| clusters | A, B, C, D, E, F | [CPAL-CHARFULL-clusters_popARRAY.sh] |
-| sex | male, female | [CPAL-CHARFULL-sex_popARRAY.sh] |
+| region | TOG, CB, PM, PI, KU, KK, COR | [CPAL-CHARFULLregion_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_popARRAY.sh) |
+| 2pops | nGOA (with PI), eBSAI | [CPAL-CHARFULL2pops_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_popARRAY.sh) |
+| 3pops | nGOA (without PI), PI, eBSAI | [CPAL-CHARFULL3pops_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL3pops_popARRAY.sh) |
 
 These scripts take [CPAL-CHARFULL_angsdARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_angsdARRAY_input.txt) as array input.
 
-Results were visualized with R scripts on a cluster (which is why there is a shell for each R script).
-| regions | r script | wrapper |
-| ------ | ------ | ------ |
-| BSAI | [fst_genomescan_regions-BSAI.R] | [CPAL-CHARFULL_genomescanFIG_regions-BSAI.sh] |
-| wGOA | [fst_genomescan_regions-wGOA.R] | [CPAL-CHARFULL_genomescanFIG_regions-wGOA.sh] |
-| eGOA | [fst_genomescan_regions-eGOA.R] | [CPAL-CHARFULL_genomescanFIG_regions-eGOA.sh] |
-| south | [fst_genomescan_regions-south.R] | [CPAL-CHARFULL_genomescanFIG_regions-south.sh] |
-
-| clusters | r script | wrapper |
-| ------ | ------ | ------ |
-| A | [fst_genomescan_clusters-A.R] | [CPAL-CHARFULL_genomescanFIG_clusters-A.sh] |
-| B | [fst_genomescan_clusters-B.R] | [CPAL-CHARFULL_genomescanFIG_clusters-B.sh] |
-| C | [fst_genomescan_clusters-C.R] | [CPAL-CHARFULL_genomescanFIG_clusters-C.sh] |
-| D | [fst_genomescan_clusters-D.R] | [CPAL-CHARFULL_genomescanFIG_clusters-D.sh] |
-| E | [fst_genomescan_clusters-E.R] | [CPAL-CHARFULL_genomescanFIG_clusters-E.sh] |
-| F | [fst_genomescan_clusters-F.R] | [CPAL-CHARFULL_genomescanFIG_clusters-F.sh] |
-
-| sex | r script | wrapper |
-| ------ | ------ | ------ |
-| female | [fst_genomescan_female.R] | [CPAL-CHARFULL_genomescanFIG_female.sh] |
+Results were visualized in an R markdown [manhattan_plots.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/manhattan_plots.Rmd).
 
 These genome scans revealed
 1) A lack of genetic structure across the geographic range.
