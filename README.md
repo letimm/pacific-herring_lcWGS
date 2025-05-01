@@ -78,7 +78,7 @@ Individual heterozygosity was calculated from the ml files as the number of hete
 
 ### Identifying adaptive regions in the genome
 #### _FST_ genome scans
-To identify genomic sites differentiating between groups, _FST_ was calculated for every SNP in each scheme described. Two additional schemes were used to investigate the genomic differences underlying the clusters identified in the eBSAI PCA (eBSAInuc; see []()) and the nGOA haplogroups identified in the mitogenome (nGOAmt; see [Analysis of mitogenomic data](https://github.com/letimm/pacific-herring_lcWGS/blob/main/README.md#analysis-of-mitogenomic-data) above).
+To identify genomic sites differentiating between groups, _FST_ was calculated for every SNP in each scheme described. Two additional schemes were used to investigate the genomic differences underlying the clusters identified in the eBSAI PCA (eBSAInuc; see the section on the [eBSAI PCA](https://github.com/letimm/pacific-herring_lcWGS/blob/main/README.md#pca)) and the nGOA haplogroups identified in the mitogenome (nGOAmt; see [Analysis of mitogenomic data](https://github.com/letimm/pacific-herring_lcWGS/blob/main/README.md#analysis-of-mitogenomic-data) above).
 | scheme | groups | scan array |
 | ------ | ------ | ------ |
 | region | TOG, CB, PM, PI, KU, KK, COR | [CPAL-CHARFULLregion_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_popARRAY.sh) |
