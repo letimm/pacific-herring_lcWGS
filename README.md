@@ -44,8 +44,8 @@ Genotype likelihoods were converted to a FASTA file with [beagle2fasta.py](https
 The FASTA was reviewed in Geneious Prime v2024.0.5. Individuals with >10% missing data (n = 13) were excluded from downstream analysis.
 
 ## Analysis of mitogenomic data
-Mitogenomic data was analyzed with several R packages. These are detailed in [pacific-herring_mt-genome.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/pacific-herring_mt-genome.Rmd).
-PCA revealed three haplogroups: an eBSAI haplogroup and two nGOA haplogroups. Individuals comprising these two nGOA haplogroups (nGOA-haplogroup1 and nGOA-haplogroup2) were investigated with nuclear data (does this strong mitogenomic signal correspond to nuclear signal?).
+Mitogenomic data were analyzed with several R packages. These are detailed in [pacific-herring_mt-genome.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/pacific-herring_mt-genome.Rmd).
+PCA revealed three haplogroups: an eBSAI haplogroup and two nGOA haplogroups. Individuals comprising these two nGOA haplogroups (nGOA-haplogroup1 and nGOA-haplogroup2) were investigated with nuclear data (does this strong mitogenomic signal correspond to nuclear signal? see [Identifying adaptive regions in the genome](https://github.com/letimm/pacific-herring_lcWGS/blob/main/README.md#identifying-adaptive-regions-in-the-genome)).
 
 ## Analysis of nuclear data
 ### PCA
@@ -78,7 +78,7 @@ Individual heterozygosity was calculated from the ml files as the number of hete
 
 ### Identifying adaptive regions in the genome
 #### _FST_ genome scans
-To identify genomic sites differentiating between groups, _FST_ was calculated for every SNP in each scheme described. Two additional schemes were used to investigate the genomic differences underlying the clusters identified in the eBSAI PCA (eBSAInuc; see []()) and the nGOA haplogroups identified in the mitogenome (nGOAmt; see [PUT SOMETHING HERE]()).
+To identify genomic sites differentiating between groups, _FST_ was calculated for every SNP in each scheme described. Two additional schemes were used to investigate the genomic differences underlying the clusters identified in the eBSAI PCA (eBSAInuc; see []()) and the nGOA haplogroups identified in the mitogenome (nGOAmt; see [Analysis of mitogenomic data](https://github.com/letimm/pacific-herring_lcWGS/blob/main/README.md#analysis-of-mitogenomic-data) above).
 | scheme | groups | scan array |
 | ------ | ------ | ------ |
 | region | TOG, CB, PM, PI, KU, KK, COR | [CPAL-CHARFULLregion_popARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULLregion_popARRAY.sh) |
