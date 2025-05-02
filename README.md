@@ -3,6 +3,7 @@ Details associated with the assembly, analyses, and visualization/plotting are b
 
 ## Assembly
 Assembly and basic analyses follow the [WGSfqs-to-genolikelihoods](https://github.com/letimm/WGSfqs-to-genolikelihoods) pipeline. The run targeting nuclear data was initialized with [CPAL-CHARFULL_config.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/CPAL-CHARFULL_config.txt). The run targeting mitogenomic data was initialized with [CPAL-MTFULL_config.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/CPAL-MTFULL_config.txt).
+Non-data files required for running these scripts (files listing bamfiles associated with a group or population, mean individual sequencing depths, etc.) are provided in [miscellaneous](https://github.com/letimm/pacific-herring_lcWGS/tree/main/miscellaneous).
 
 ### Index reference genomes
 The [Atlantic herring reference genome](https://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/900/700/415/GCF_900700415.2_Ch_v2.0.2/GCF_900700415.2_Ch_v2.0.2_genomic.fna.gz) was prepared with a pair of scripts: [GCF_900700415.2_Ch_v2.0.2_genomic_bwa-indexSLURM.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/GCF_900700415.2_Ch_v2.0.2_genomic_bwa-indexSLURM.sh) and [GCF_900700415.2_Ch_v2.0.2_genomic_faiSLURM.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/GCF_900700415.2_Ch_v2.0.2_genomic_faiSLURM.sh).
