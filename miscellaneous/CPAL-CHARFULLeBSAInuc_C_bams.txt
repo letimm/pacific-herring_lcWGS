@@ -1,0 +1,11 @@
+/center1/GLASSLAB/letimm/Clupea_pallasii/bamtools/CPAL-CHAR_417851_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasii/bamtools/CPAL-CHAR_418727_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_CB52_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_CB62_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_CB63_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_CB78_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_CB94_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_PM60_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_PM62_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_PM76_sorted_dedup_clipped_rg.bam
+/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/bamtools/CPAL-CHARFULL_PM82_sorted_dedup_clipped_rg.bam
