@@ -2,3 +2,10 @@
 2:2pops_GOA:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL2pops_GOA_bams.txt:60:300
 3:3pops_GOA:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL3pops_GOA_bams.txt:40:200
 4:3pops_PI:/center1/GLASSLAB/letimm/Clupea_pallasiiFULL/CPAL-CHARFULL3pops_PopofIsland_bams.txt:20:100
+5:region_ConstantineBay:/center1/GLASSLAB/letimm/Clupea_pallasii120/CPAL-CHARFULLregion_ConstantineBay_bams.txt:20:100
+6:region_Cordova:/center1/GLASSLAB/letimm/Clupea_pallasii120/CPAL-CHARFULLregion_Cordova_bams.txt:20:100
+7:region_KodiakInsideUganik:/center1/GLASSLAB/letimm/Clupea_pallasii120/CPAL-CHARFULLregion_KodiakInsideUganik_bams.txt:10:50
+8:region_KodiakOutsideKiliuda:/center1/GLASSLAB/letimm/Clupea_pallasii120/CPAL-CHARFULLregion_KodiakOutsideKiliuda_bams.txt:10:50
+9:region_PopofIsland:/center1/GLASSLAB/letimm/Clupea_pallasii120/CPAL-CHARFULLregion_PopofIsland_bams.txt:20:100
+10:region_PortMoller:/center1/GLASSLAB/letimm/Clupea_pallasii120/CPAL-CHARFULLregion_PortMoller_bams.txt:20:100
+11:region_Togiak:/center1/GLASSLAB/letimm/Clupea_pallasii120/CPAL-CHARFULLregion_Togiak_bams.txt:20:100
