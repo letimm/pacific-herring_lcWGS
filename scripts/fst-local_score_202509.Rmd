@@ -1,0 +1,168 @@
+---
+title: "pacific_herring_regions-of-interest"
+author: "laura e timm"
+date: '2025-09-25'
+output: html_document
+---
+
+# setup
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## load libraries
+```{r load_libraries, warning=FALSE, message=FALSE}
+
+packages_needed <- c("tidyverse", "ggplot2", "readxl")
+
+for(i in 1:length(packages_needed)){
+  if(!(packages_needed[i] %in% installed.packages())){install.packages(packages_needed[i])}
+  library(packages_needed[i], character.only = TRUE)
+}
+
+```
+
+
+## def fx
+
+### get local score regions
+```{r define_getLSregions_FX}
+
+get_LS_regions <- function(DF, P1, P2, CHROMO_DF) {
+  LS_DF <- DF %>%
+    filter(pop1 == P1 | pop2 == P1) %>%
+    filter(pop1 == P2 | pop2 == P2)
+  colnames(LS_DF) = c("pop1", "pop2", "LS_chr", "xmin", "xmax")
+  
+  LS_DF
+}
+
+```
+
+
+### format fst DF
+```{r define_prepFSTdf_FX}
+
+FST_df_prep <- function(POP1, POP2, CHROMS_DF) {
+  WILDCARD1 <- paste0(BASEDIR, "fst/", POP1, "-", POP2, ".fst.txt")
+  FILENAMES1 <- Sys.glob(WILDCARD1) 
+  WILDCARD2 <- paste0(BASEDIR, "fst/", POP2, "-", POP1, ".fst.txt")
+  FILENAMES2 <- Sys.glob(WILDCARD2)
+  file_list <- c(as.list(FILENAMES1), as.list(FILENAMES2))
+  FILENAMES <- c(FILENAMES1, FILENAMES2)
+
+  #read in files
+  fst_df <- file_list %>%
+    set_names(nm = FILENAMES) %>%
+    map_dfr(
+      ~ read_delim(.x,
+                   skip = 1,
+                   col_types = cols(),
+                   col_names = c("region", "chr", "midpos", "nsites", "fst"),
+                   delim = "\t"),
+      
+      .id = "comparison"
+    )
+
+  fst_df <- left_join(fst_df, CHROMS_DF, by = "chr")
+  fst_df$fst_neg0 <- fst_df$fst
+  fst_df$fst_neg0[fst_df$fst_neg0 < 0] <- 0
+  
+  fst_df
+
+}
+
+```
+
+### identify intersection between high FST sites and local score
+```{r def_identify_fst_LS_intersect_FX}
+
+get_highFST_sigLS_intersection <- function(POPSLIST_IN, FST_PERC_THRESH) {
+  for(i in 1:length(POPSLIST_IN)) {
+    for(j in 2:length(POPSLIST_IN)) {
+      if(i < j) {
+        pop_pair_LS_FST_chrom_intersect_df <- NULL
+        pop_pair_LS_df <- get_LS_regions(ls_regions_df,
+                                         POPSLIST_IN[[i]],
+                                         POPSLIST_IN[[j]],
+                                         chrom_df)
+        pop_pair_FST_df <- FST_df_prep(POPSLIST_IN[[i]],
+                                       POPSLIST_IN[[j]],
+                                       chrom_df)
+        max_fst <- max(pop_pair_FST_df$fst_neg0, na.rm = T)
+        high_fst_df <- pop_pair_FST_df %>%
+          filter(fst_neg0 >= max_fst * (1 - FST_PERC_THRESH))
+      
+        pop_pair_LS_FST_chrom_intersect_df <- inner_join(high_fst_df,
+                                                         pop_pair_LS_df,
+                                                         join_by(chr_num == LS_chr))
+        
+        if(nrow(pop_pair_LS_FST_chrom_intersect_df) > 0) {
+          pop_pair_LS_FST_intersect_df <- pop_pair_LS_FST_chrom_intersect_df %>%
+            filter(midpos >= xmin & midpos <= xmax)
+        }
+      
+        if(exists("pop_pair_LS_FST_intersect_df")) {
+          write.csv(pop_pair_LS_FST_intersect_df,
+                    file = paste0(OUTDIR, POPSLIST_IN[[i]], "-", POPSLIST_IN[[j]], "_fst-ls_intersect.csv"))
+        }
+      }
+    }
+  }
+}
+
+```
+
+##specifics
+```{r project_setup}
+
+BASEDIR <- "C:/Users/laura.timm/Desktop/Clupea_pallasii120/"
+PREFIX <- "CPAL-CHARFULL"
+ls_regions_df <- read_xlsx(paste0(BASEDIR, "local_score/summary.xlsx"), sheet = "tidy")
+OUTDIR <- "roi/"
+
+CHROMFILE <- paste0(BASEDIR, "CHAR_chrom_metadata.txt")
+chrom_df <- read.table(CHROMFILE, header = TRUE)
+
+#what percent of FST values do you want to retain? The top 1% would be "fst_top_perc = 0.01"
+fst_top_perc <- 0.01
+
+```
+
+# collection regions within nGOA
+```{r nGOA}
+
+POPSLIST_nGOA <- list("Cordova", "KodiakInsideUganik", "KodiakOutsideKiliuda", "PopofIsland")
+get_highFST_sigLS_intersection(POPSLIST_nGOA, fst_top_perc)
+
+```
+
+
+
+# collection regions within eBSAI
+```{r eBSAI}
+
+POPSLIST_eBSAI <- list("ConstantineBay", "Togiak", "PortMoller")
+get_highFST_sigLS_intersection(POPSLIST_eBSAI, fst_top_perc)
+
+```
+
+
+
+# eBSAI clusters
+```{r manh_ebs59A}
+
+POPSLIST_eBS59clusts <- list("A", "B", "C")
+get_highFST_sigLS_intersection(POPSLIST_eBS59clusts, fst_top_perc)
+
+```
+
+
+
+# MTclusts in nuclear data
+```{r manh_mt_GOA}
+
+POPSLIST_mtGOAclusts <- list("GOA1", "GOA2")
+get_highFST_sigLS_intersection(POPSLIST_mtGOAclusts, fst_top_perc)
+
+```
