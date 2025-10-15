@@ -57,6 +57,12 @@ Moving forward, population-level analyses were conducted to evaluate:
 - a two-population scenario; nGOA (PI, KU, KK, COR) vs eBSAI (TOG, CB, PM)
 - a three-population scenario; nGOA (KU, KK, COR) vs PI vs eBSAI (TOG, CB, PM)
 
+### Admixture
+Hierarchical admixture analysis was accomplished with NGSadmix: all samples were included in the first analysis, which was executed with [CPAL-CHARFULL_wgph_admixARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_wgph_admixARRAY.sh). nGOA, including Popof Island, and eBSAI also underwent admixture analysis individually, which required region-specific beagle files. These scripts are as follows:
+| region | calc gls scripts | admixture script |
+| ------ | ------ | ------ |
+| nGOA | [CPAL-CHARFULL-GOA_polymorphic-filteredARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-GOA_polymorphic-filteredARRAY.sh), [CPAL-CHARFULL-GOA_concatenate_wgph_beagles.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-GOA_concatenate_wgph_beagles.sh), [CPAL-CHARFULL-GOA_concatenate_wgph_mafs.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-GOA_concatenate_wgph_mafs.sh) | [CPAL-CHARFULL-GOA_admixARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-GOA_admixARRAY.sh) |
+| eBSAI | [CPAL-CHARFULL-eBS_polymorphic-filteredARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBS_polymorphic-filteredARRAY.sh), [CPAL-CHARFULL-eBS_concatenate_wgph_beagles.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBS_concatenate_wgph_beagles.sh), [CPAL-CHARFULL-eBS_concatenate_wgph_mafs.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBS_concatenate_wgph_mafs.sh) | [CPAL-CHARFULL-eBS_admixARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBS_admixARRAY.sh) |
 
 ### Pairwise _FST_
 After individuals were organized as described above, _FST_ values were calculated for all population pairs within these schemes using [CPAL-CHARFULL2pops_pairwiseFST-pt1_ARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_pairwiseFST-pt1_ARRAY.sh) and [CPAL-CHARFULL2pops_pairwiseFST-pt2_ARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL2pops_pairwiseFST-pt2_ARRAY.sh). 
