@@ -95,3 +95,11 @@ To identify genomic sites under selection, local score analysis was conducted fo
 Allele counts were made with [CPAL-CHARFULL_dumpCountsARRAY.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_dumpCountsARRAY.sh), which takes [CPAL-CHARFULL_dumpCountsARRAY_input.txt](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL_dumpCountsARRAY_input.txt) as array input. Fisher's Exact Test (FET) results were calculated from allele counts with [dumpCounts2FET.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/dumpCounts2FET.Rmd). Local score analyses were conducted over these FET results with [FET2localScores.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/FET2localScores.Rmd).
 
 Results were visualized in an R markdown [manhattan_plots.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/manhattan_plots.Rmd).
+
+#### Region of interest on chromosome 7 
+Comparison between eBSAI lineages A and C revealed a genomic region of interest, given the intersection between regions with elevated _FST_ and those identified with local score. This region was further investigated with a PCA of the SNPs within the genomic region, visualization of a genotype heatmap, and calculation of an linkage disequilibrium (LD) heatmap.
+##### Local PCA
+
+##### Genotype heatmap
+
+##### LD heatmap
