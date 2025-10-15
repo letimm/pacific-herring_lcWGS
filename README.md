@@ -107,7 +107,7 @@ For each pairwise comparison (e.g., Cordova vs Popof Island; Togiak vs Constanti
 Comparison between eBSAI lineages A and C revealed a genomic region of interest, given the intersection between regions with elevated _FST_ and those identified with local score. This region was further investigated with a visualization of a genotype heatmap, PCA of the SNPs within the genomic region, and calculation of an linkage disequilibrium (LD) heatmap.
 First, genotype likelihoods were calculated for SNPs within the genomic outlier region for individuals in eBSAI lineages A and C with [CPAL-CHARFULL-eBS-AC_chr7region.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBS-AC_chr7region.sh). 
 
-Allelic dosages from the resultant beagle were visualized in a genotype heatmap with [pacific_herring_summary_202509.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/pacific_herring_summary_202509.Rmd). 
+Allelic dosages from the resultant beagle were visualized in a genotype heatmap with [pacific_herring_summary_202509.Rmd](https://github.com/letimm/pacific-herring_lcWGS/blob/main/RMarkdown_htmls/pacific_herring_summary_202509.Rmd). 
 
 Local PCA of the SNPs within this outlier region was accomplished with [CPAL-CHARFULL-eBS-AC_chr7region_wgph_pcangsd.sh](https://github.com/letimm/pacific-herring_lcWGS/blob/main/scripts/CPAL-CHARFULL-eBS-AC_chr7region_wgph_pcangsd.sh)
 
