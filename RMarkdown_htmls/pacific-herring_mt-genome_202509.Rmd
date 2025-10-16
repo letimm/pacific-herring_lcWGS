@@ -1,0 +1,445 @@
+---
+title: "pacific-herring_mt-genome"
+author: "laura e timm"
+date: '2024-10-03'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+# Set up
+## load libraries
+```{r load_libraries, warning=FALSE, message=FALSE}
+
+if (!require(devtools)) install.packages("devtools")
+devtools::install_github("gaospecial/ggVennDiagram")
+
+packages_needed <- c("readxl", "ape", "adegenet",
+                     "ggplot2", "pegas", "dplyr",
+                     "tidyr", "tidyverse", "poppr", "hierfstat",
+                     "tibble", "ggVennDiagram")
+
+for(i in 1:length(packages_needed)){
+  if(!(packages_needed[i] %in% installed.packages())){install.packages(packages_needed[i])}
+  library(packages_needed[i], character.only = TRUE)
+}
+
+```
+
+
+## specify
+```{r project_setup}
+
+BASEDIR <- "C:/Users/laura.timm/Desktop/Clupea_pallasii120/mt_genome/" #the directory where the metadata file lives
+FIG_DIR <- "C:/Users/laura.timm/Desktop/Clupea_pallasii120/FIGURES/"
+MT_PREFIX <- "CPAL-MTFULL" #prefix for mt genome data
+DEPTH_LOWER_BOUND <- 1
+
+CHROMFILE <- "C:/Users/laura.timm/Desktop/Clupea_pallasii120/CHAR_chrom_metadata.txt"
+chrom_df <- read.table(CHROMFILE, header = TRUE)
+
+full_metadata <- read_xlsx("C:/Users/laura.timm/Desktop/Clupea_pallasii120/pacific-herring_metadata_120.xlsx", sheet = "Sheet1")
+pruned_metadata <- full_metadata[full_metadata$mt_whitelist == 1,]
+
+wgph_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '_wgph_PRUNED.fasta'), format="fasta")
+
+wgph_gl <- fasta2genlight(paste0(BASEDIR, MT_PREFIX, '_wgph_PRUNED.fasta'), snpOnly=T)
+
+#palette
+region_clust_palette <- c(Togiak = "#313695",
+                          eBS1 = "#4575B4",
+                          eBS2 = "#ABD9E9",
+                          Cordova = "#A50026",
+                          GOA1 = "#F46D43",
+                          GOA2 ="#FDAE61",
+                          Kodiak_Outside_Kiliuda = "#588b8b",
+                          ConstantineBay = "#ffd5c2",
+                          Kodiak_Inside_Uganik = "#93b7be",
+                          PortMoller = "#c8553d",
+                          PopofIsland = "#386641",
+                          Unalakleet = "#6a3d9a",
+                          NelsonIsland = "#b2df8a",
+                          GoodnewsBay = "#775954",
+                          KangirlvarBay = "#FFE078")
+
+#teal and orange
+opt1_region_palette <- c("Togiak" = "#2a5674",
+                         "Port Moller" = "#4f90a6",
+                         "Constantine Bay" = "#85c4c9",
+                         "Popof Island" = "#fdd0a2",
+                         "Kodiak - Kiliuda" = "#fd8d3c",
+                         "Kodiak - Uganik" = "#d94801",
+                         "Cordova" = "#8c2d04")
+
+
+```
+
+
+
+## Aligned sequencing depths
+
+```{r plot_initial_depth_distributions_MT, warning=FALSE, message=FALSE}
+
+just_depths <- read.csv(paste0(BASEDIR, MT_PREFIX, "_depths.csv"), header = FALSE, sep = '\t')
+colnames(just_depths) <- c("Barcode", "mean_depth")
+full_metadata <- left_join(pruned_metadata, just_depths, by = "Barcode")
+
+theme_set(
+  theme( 
+    panel.grid.major = element_blank(),
+    panel.grid.minor = element_blank(),
+    axis.text.x = element_text(angle = 90, size = 10, vjust = 0.5),
+    axis.text.y = element_text(angle = 0, size = 10),
+    panel.background = element_rect(fill = "white"), 
+    panel.spacing = unit(0,"lines"),
+    strip.text.y = element_text(angle = 0) 
+  )
+)
+
+(depths_dists_plot <- ggplot(full_metadata, aes(x = mean_depth, color = MarineRegion)) +
+    geom_density(n = 50, linewidth = 1) +
+    geom_vline(aes(xintercept = DEPTH_LOWER_BOUND), colour = "black") +
+    scale_color_manual(values=opt1_region_palette) +
+    ggtitle("individual mean sequence depth distributions"))
+
+#ggsave(paste0(BASEDIR, MT_PREFIX, "_region_mean_depths.jpg"), width = 8, height = 5, units = "in", dpi = 300)
+
+```
+
+
+# Analysis
+
+## PCA
+
+### eBS + GOA
+```{r eigens_mtDNA_all}
+
+wgph_pca <- glPca(wgph_gl, nf=10)
+
+barplot(100*wgph_pca$eig/sum(wgph_pca$eig), main="Eigenvalues", col=heat.colors(length(wgph_pca$eig)))
+
+# fast plot
+scatter(wgph_pca, psi='bottomright')
+
+```
+
+
+
+```{r pca12_mtDNA_all}
+
+wgph_pca_df = as.data.frame(wgph_pca$scores)
+#wgph_pca_df$isolates = rownames(wgph_pca_df)
+wgph_pca_df$region = as.factor(pruned_metadata[match(wgph_gl$ind.names, pruned_metadata$fasta_header),]$MarineRegion)
+wgph_pca_df$spawn = as.factor(pruned_metadata[match(wgph_gl$ind.names, pruned_metadata$fasta_header),]$spawning)
+wgph_pca_df$barcode = as.factor(pruned_metadata[match(wgph_gl$ind.names, pruned_metadata$fasta_header),]$Barcode)
+
+(wgph_pca_plot <- ggplot(wgph_pca_df, aes(PC1, PC2, color = region, shape = spawn)) + 
+    geom_point(size=3, alpha=0.75) +
+    scale_color_manual(values=opt1_region_palette) +
+    xlab(paste0("PC1 - ", sprintf("%0.2f", (wgph_pca$eig[1]/sum(wgph_pca$eig)*100)), "%")) +
+    ylab(paste0("PC2 - ", sprintf("%0.2f", (wgph_pca$eig[2]/sum(wgph_pca$eig)*100)), "%")))
+
+ggsave(paste0(FIG_DIR, MT_PREFIX, "_wgph_PRUNED_PCA.jpg"), width = 6, height = 4, units = "in", dpi = 600)
+
+```
+
+
+```{r pca13_mtDNA_all}
+
+(wgph_pca13_plot <- ggplot(wgph_pca_df, aes(PC1, PC3, color = region, shape = spawn)) + 
+    geom_point(size=5, alpha=0.75) +
+    scale_color_manual(values=region_clust_palette) +
+    xlab(paste0("PC1 - ", sprintf("%0.2f", (wgph_pca$eig[1]/sum(wgph_pca$eig)*100)), "%")) +
+    ylab(paste0("PC3 - ", sprintf("%0.2f", (wgph_pca$eig[3]/sum(wgph_pca$eig)*100)), "%")))
+
+ggsave(paste0(BASEDIR, MT_PREFIX, "_wgph_PRUNED_PCA-1v3.jpg"), width = 6, height = 4, units = "in", dpi = 600)
+
+```
+
+
+```{r pca_grid_spawn_region_MT, fig.width = 8, fig.heigth = 20}
+
+(pca_facet_MT <- wgph_pca_plot +
+   facet_grid(rows = vars(region)))
+
+ggsave(paste0(FIG_DIR, MT_PREFIX, "_PCA_region_facet_MT.jpg"), width = 8, height = 12, units = "in", dpi = 600)
+
+```
+
+
+## Heatmap
+```{r heatmap}
+
+wgph_gl$pop = as.factor(pruned_metadata[match(wgph_gl$ind.names, pruned_metadata$fasta_header),]$mt_haplogroup)
+
+# Heat map of genotype
+glPlot(wgph_gl)
+
+```
+
+
+
+## Haplotype network
+```{r prep_haplotyp}
+
+#I think there's something wrong with the most recent version of pegas, so I'm going back to a version that I know worked (v1.1)
+#require(devtools)
+#install_version("pegas", repos = "http://cran.us.r-project.org", version = "1.1")
+#library("pegas")
+
+hap <- haplotype(wgph_fasta, trailingGapsAsN = FALSE)
+hap_net <- haploNet(hap, d=dist.dna(hap, model = "N"))
+
+ind_hap <- as_tibble(with(utils::stack(setNames(attr(hap, "index"), rownames(hap))), table(hap=ind, fasta_header=rownames(wgph_fasta)[values]))) %>%
+  separate_wider_delim(fasta_header, delim = "_", names = c("barcode","region"))
+  
+## number of positions retained
+t(as.character(wgph_fasta)) %>% 
+  as_tibble() %>%
+  filter_all(all_vars(. != "n")) %>%
+  dim() %>%
+  .[1]
+
+```
+
+
+
+```{r region_Haplotype_network}
+## plotting 
+pop_hap <- ind_hap %>%
+  group_by(hap, region) %>%
+  summarise(n=sum(n, na.rm = T)) %>%
+  ungroup() %>%
+  spread(region, n) %>%
+  mutate_all(~replace(., is.na(.), 0)) %>%
+  mutate(hap=as.roman(hap)) %>%
+  arrange(hap) %>%
+  dplyr::select(-hap) %>%
+  as.matrix()
+pie_color = opt1_region_palette
+set.seed(1)
+
+# tiff(paste0(FIG_DIR, MT_PREFIX, "_haplotype-network.tiff"),
+#      width = 6,
+#      height = 4,
+#      units = "in",
+#      res = 300,
+#      compression = "lzw")
+plot(hap_net, size=sqrt(attr(hap_net, "freq"))*1.5, fast = F, scale.ratio = 1, pie=pop_hap, bg=pie_color, show.mutation=1, labels=F, threshold=c(0)); legend("topleft", c(colnames(pop_hap)), fill=pie_color, cex=0.8)
+
+```
+
+
+
+```{r mthaplo_venn_diagram}
+
+mtclust_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '_wgph_PRUNED_mtclust.fasta'), format="fasta")
+mtclust_hap <- haplotype(mtclust_fasta, trailingGapsAsN = FALSE)
+freqs_loc <- haploFreq(mtclust_fasta, haplo = mtclust_hap)
+net_loc <- haploNet(mtclust_hap)
+freq <- attr(net_loc, "freq")
+
+x <- as.data.frame(freqs_loc) %>% mutate(mtclust_hap = seq(1:79))
+
+x1 <- x %>% dplyr::select(eBSAI,mtclust_hap) %>% filter(eBSAI != 0)
+x2 <- x %>% dplyr::select(GOA1,mtclust_hap) %>% filter(GOA1 != 0)
+x3 <- x %>% dplyr::select(GOA2,mtclust_hap) %>% filter(GOA2 != 0)
+x4 <- x %>% dplyr::select(GOA,mtclust_hap) %>% filter(GOA != 0)
+
+v <- list(eBSAI=x1$mtclust_hap, GOA1=x2$mtclust_hap, GOA2=x3$mtclust_hap, GOA=x4$mtclust_hap)
+
+ggVennDiagram(v, label_alpha = 0) +
+  ggplot2::scale_fill_gradient(low="white",high = "blue")
+
+```
+
+
+```{r region_venn_diagram}
+
+region_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '_wgph_PRUNED.fasta'), format="fasta")
+region_hap <- haplotype(region_fasta, trailingGapsAsN = FALSE)
+freqs_loc <- haploFreq(region_fasta, haplo = region_hap)
+net_loc <- haploNet(region_hap)
+freq <- attr(net_loc, "freq")
+
+x <- as.data.frame(freqs_loc) %>% mutate(region_hap = seq(1:79))
+
+x1 <- x %>% dplyr::select(CB,region_hap) %>% filter(CB != 0)
+x2 <- x %>% dplyr::select(COR,region_hap) %>% filter(COR != 0)
+x3 <- x %>% dplyr::select(KIU,region_hap) %>% filter(KIU != 0)
+x4 <- x %>% dplyr::select(KOK,region_hap) %>% filter(KOK != 0)
+x5 <- x %>% dplyr::select(PI,region_hap) %>% filter(PI != 0)
+x6 <- x %>% dplyr::select(PM,region_hap) %>% filter(PM != 0)
+x7 <- x %>% dplyr::select(TOG,region_hap) %>% filter(TOG != 0)
+
+v <- list(CB=x1$region_hap,
+          COR=x2$region_hap, 
+          KIU=x3$region_hap, 
+          KOK=x4$region_hap,
+          PI=x5$region_hap,
+          PM=x6$region_hap,
+          TOG=x7$region_hap)
+
+ggVennDiagram(v, label_alpha = 0) +
+  ggplot2::scale_fill_gradient(low="white",high = "blue")
+
+```
+
+
+# Stats
+
+## Diversity
+```{r haplotype_nucleotide_div}
+
+COR_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-COR_wgph_PRUNED.fasta'), format="fasta")
+COR_hap_div <- hap.div(COR_fasta, variance = T)
+COR_nuc_div <- nuc.div(COR_fasta, variance = T)
+
+KIU_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-KIU_wgph_PRUNED.fasta'), format="fasta")
+KIU_hap_div <- hap.div(KIU_fasta, variance = T)
+KIU_nuc_div <- nuc.div(KIU_fasta, variance = T)
+
+KOK_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-KOK_wgph_PRUNED.fasta'), format="fasta")
+KOK_hap_div <- hap.div(KOK_fasta, variance = T)
+KOK_nuc_div <- nuc.div(KOK_fasta, variance = T)
+
+PI_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-PI_wgph_PRUNED.fasta'), format="fasta")
+PI_hap_div <- hap.div(PI_fasta, variance = T)
+PI_nuc_div <- nuc.div(PI_fasta, variance = T)
+
+PM_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-PM_wgph_PRUNED.fasta'), format="fasta")
+PM_hap_div <- hap.div(PM_fasta, variance = T)
+PM_nuc_div <- nuc.div(PM_fasta, variance = T)
+
+CB_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-CB_wgph_PRUNED.fasta'), format="fasta")
+CB_hap_div <- hap.div(CB_fasta, variance = T)
+CB_nuc_div <- nuc.div(CB_fasta, variance = T)
+
+TOG_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-TOG_wgph_PRUNED.fasta'), format="fasta")
+TOG_hap_div <- hap.div(TOG_fasta, variance = T)
+TOG_nuc_div <- nuc.div(TOG_fasta, variance = T)
+
+ebs_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-eBS_wgph_PRUNED.fasta'), format="fasta")
+ebs_hap_div <- hap.div(ebs_fasta, variance = T)
+ebs_nuc_div <- nuc.div(ebs_fasta, variance = T)
+
+goa_fasta <- read.dna(paste0(BASEDIR, MT_PREFIX, '-GOA_wgph_PRUNED.fasta'), format="fasta")
+goa_hap_div <- hap.div(goa_fasta, variance = T)
+goa_nuc_div <- nuc.div(goa_fasta, variance = T)
+
+goa1_fasta <- read.dna(paste0(BASEDIR, 'GOA1.fasta'), format="fasta")
+goa1_hap_div <- hap.div(goa1_fasta, variance = T)
+goa1_nuc_div <- nuc.div(goa1_fasta, variance = T)
+
+goa2_fasta <- read.dna(paste0(BASEDIR, 'GOA2.fasta'), format="fasta")
+goa2_hap_div <- hap.div(goa2_fasta, variance = T)
+goa2_nuc_div <- nuc.div(goa2_fasta, variance = T)
+
+```
+
+## Pairwise FST
+
+### eBSAI vs nGOA
+
+
+### eBS vs GOA1 vs GOA2
+
+```{r pairwise_fst}
+
+wgph_genind <- DNAbin2genind(wgph_fasta)
+pop(wgph_genind) <- pruned_metadata$mt_haplogroup
+
+dat<-genind2hierfstat(wgph_genind)
+dat<-dat[order(dat[,1]),]
+pops<-unique(dat[,1])
+npop<-length(pops)
+fstmat <- matrix(nrow=npop,ncol=npop,dimnames=list(pops,pops))
+if (is.factor(dat[,1])) {
+  dat[,1]<-as.numeric(dat[,1])
+  pops<-as.numeric(pops)
+}
+for(a in 2:npop){
+  for(b in 1:(a-1)){
+    subdat <- dat[dat[,1] == pops[a] | dat[,1]==pops[b],]
+    fstmat[a,b]<-fstmat[b,a]<- wc(subdat,diploid=FALSE)$FST
+  }
+  
+}
+fstmat
+
+wgph_stats <- basic.stats(wgph_genind, diploid = FALSE)
+wgph_stats$overall
+
+```
+
+
+```{r fasta_fst_sig_test}
+
+
+fst_obs <- pairwise.WCfst(dat, diploid=FALSE)
+
+subpop_dat <- dat %>%
+  rownames_to_column("ID") %>%
+  separate(ID, c("barcode", "region_code")) %>%
+  mutate(region_code=gsub("CB",1,region_code)) %>%
+  mutate(region_code=gsub("COR",2,region_code)) %>%
+  mutate(region_code=gsub("KIU",3,region_code)) %>%
+  mutate(region_code=gsub("KOK",4,region_code)) %>%
+  mutate(region_code=gsub("PI",5,region_code)) %>%
+  mutate(region_code=gsub("PM",6,region_code)) %>%
+  mutate(region_code=gsub("TOG",7,region_code))
+
+subpop_dat[, c(2)] <- sapply(subpop_dat[, c(2)], as.numeric)
+subpop_dat<-subpop_dat[with(subpop_dat, order(pop, region_code)), ]
+
+loci <- subpop_dat[,c(4:270)]
+
+NBPERM <- 1000
+
+eBSAI_GOA1_dat <- subpop_dat %>%
+  filter(pop == 1 | pop == 4)
+eBSAI_GOA1_pops <- eBSAI_GOA1_dat[,c(3)]
+eBSAI_GOA1_regions <- eBSAI_GOA1_dat[,c(2)]
+eBSAI_GOA1_fst_sig <- test.between(loci, test=eBSAI_GOA1_pops, rand.unit=eBSAI_GOA1_regions, nperm=NBPERM)
+
+eBSAI_GOA2_dat <- subpop_dat %>%
+  filter(pop == 2 | pop == 4)
+eBSAI_GOA2_pops <- eBSAI_GOA2_dat[,c(3)]
+eBSAI_GOA2_regions <- eBSAI_GOA2_dat[,c(2)]
+eBSAI_GOA2_fst_sig <- test.between(loci, test=eBSAI_GOA2_pops, rand.unit=eBSAI_GOA2_regions, nperm=NBPERM)
+
+GOA1_GOA2_dat <- subpop_dat %>%
+  filter(pop == 1 | pop == 2)
+GOA1_GOA2_pops <- GOA1_GOA2_dat[,c(3)]
+GOA1_GOA2_regions <- GOA1_GOA2_dat[,c(2)]
+GOA1_GOA2_fst_sig <- test.between(loci, test=GOA1_GOA2_pops, rand.unit=GOA1_GOA2_regions, nperm=NBPERM)
+
+sink(paste0(BASEDIR,"fst-sig_mthaplogroup.txt"))
+"eBSAI vs GOA1"
+eBSAI_GOA1_fst_sig
+"eBSAI vs GOA2"
+eBSAI_GOA2_fst_sig
+"GOA1 vs GOA2"
+GOA1_GOA2_fst_sig
+sink(NULL)
+
+```
+
+
+
+```{r fasta_amova}
+
+other(wgph_genind)$region <- pruned_metadata$region_code
+other(wgph_genind)$mtclust <- pruned_metadata$mt_haplogroup
+strata(wgph_genind) <- data.frame(other(wgph_genind))
+setPop(wgph_genind) <- ~mtclust/region
+  
+(wgph_amova <- poppr.amova(wgph_genind,
+                             hier = ~mtclust/region,
+                             within=FALSE))
+
+```
+
+
